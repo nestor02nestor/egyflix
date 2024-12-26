@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاهدة - EgyFlix</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <style>
+        .video-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-info {
+            margin-top: 20px;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+
+        .video-info h1 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .video-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .video-meta span {
+            color: #aaa;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .video-description {
+            color: #ddd;
+            line-height: 1.6;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #3a3a3a;
+        }
+
+        .plyr {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .episodes-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+
+        .episodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .episode-button {
+            background: #3a3a3a;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+        }
+
+        .episode-button:hover {
+            background: #e50914;
+        }
+
+        .episode-button.active {
+            background: #e50914;
+        }
+
+        @media (max-width: 768px) {
+            .video-container {
+                margin: 10px;
+                padding: 10px;
+            }
+
+            .video-info h1 {
+                font-size: 20px;
+            }
+
+            .episodes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>EgyFlix</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html#movies">أفلام</a>
+                <a href="index.html#series">مسلسلات</a>
+                <a href="index.html#anime">أنمي</a>
+                <a href="index.html#wrestling">مصارعة</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="video-container">
+            <div id="player" data-plyr-provider="youtube"></div>
+            
+            <div class="video-info">
+                <h1 id="contentTitle"></h1>
+                <div class="video-meta">
+                    <span id="contentYear"><i class="fas fa-calendar"></i></span>
+                    <span id="contentDuration"><i class="fas fa-clock"></i></span>
+                    <span id="contentQuality"><i class="fas fa-video"></i></span>
+                    <span id="contentRating"><i class="fas fa-star"></i></span>
+                    <span id="contentGenre"><i class="fas fa-film"></i></span>
+                </div>
+                <div class="video-description" id="contentDescription"></div>
+            </div>
+
+            <div class="episodes-container" id="episodesContainer" style="display: none;">
+                <h2>الحلقات</h2>
+                <div class="episodes-grid" id="episodesGrid"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>جميع الحقوق محفوظة &copy; 2024 EgyFlix</p>
+    </footer>
+
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const contentId = urlParams.get('id');
+        const contentType = urlParams.get('type');
+        
+        // Initialize Plyr
+        const player = new Plyr('#player', {
+            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
+            settings: ['captions', 'quality', 'speed'],
+            quality: {
+                default: 1080,
+                options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240]
+            }
+        });
+
+        // Fetch content details
+        async function fetchContentDetails() {
+            try {
+                const response = await fetch('http://localhost:5000/api/content');
+                const data = await response.json();
+                
+                let content;
+                if (contentType === 'movies') {
+                    content = data.movies.find(m => m.id === parseInt(contentId));
+                } else if (contentType === 'series') {
+                    content = data.series.find(s => s.id === parseInt(contentId));
+                } else if (contentType === 'anime') {
+                    content = data.anime.find(a => a.id === parseInt(contentId));
+                } else if (contentType === 'wrestling') {
+                    content = data.wrestling.find(w => w.id === parseInt(contentId));
+                }
+
+                if (content) {
+                    // Update page title
+                    document.title = `${content.title} - EgyFlix`;
+                    
+                    // Update content info
+                    document.getElementById('contentTitle').textContent = content.title;
+                    document.getElementById('contentYear').innerHTML = content.year ? `<i class="fas fa-calendar"></i> ${content.year}` : '';
+                    document.getElementById('contentDuration').innerHTML = content.duration ? `<i class="fas fa-clock"></i> ${content.duration}` : '';
+                    document.getElementById('contentQuality').innerHTML = content.quality ? `<i class="fas fa-video"></i> ${content.quality}` : '';
+                    document.getElementById('contentRating').innerHTML = content.rating ? `<i class="fas fa-star"></i> ${content.rating}` : '';
+                    document.getElementById('contentGenre').innerHTML = content.genre ? `<i class="fas fa-film"></i> ${content.genre}` : '';
+                    document.getElementById('contentDescription').textContent = content.description || '';
+
+                    // Handle episodes for series and anime
+                    if ((contentType === 'series' || contentType === 'anime') && content.episodes) {
+                        const episodesContainer = document.getElementById('episodesContainer');
+                        const episodesGrid = document.getElementById('episodesGrid');
+                        episodesContainer.style.display = 'block';
+                        
+                        // Create episode buttons
+                        const episodeCount = parseInt(content.episodes);
+                        for (let i = 1; i <= episodeCount; i++) {
+                            const button = document.createElement('button');
+                            button.className = 'episode-button';
+                            button.textContent = `الحلقة ${i}`;
+                            button.onclick = () => playEpisode(i, content.video_url);
+                            episodesGrid.appendChild(button);
+                        }
+
+                        // Play first episode by default
+                        playEpisode(1, content.video_url);
+                    } else {
+                        // Play single video
+                        setupVideo(content.video_url);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching content details:', error);
+            }
+        }
+
+        // Setup video player
+        function setupVideo(url) {
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                // Extract YouTube video ID
+                const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i)?.[1];
+                if (videoId) {
+                    player.source = {
+                        type: 'video',
+                        sources: [{
+                            src: videoId,
+                            provider: 'youtube'
+                        }]
+                    };
+                }
+            } else if (url.includes('dailymotion.com')) {
+                // Extract Dailymotion video ID
+                const videoId = url.match(/dailymotion.com\/(?:video\/|embed\/video\/)([a-zA-Z0-9]+)/)?.[1];
+                if (videoId) {
+                    player.source = {
+                        type: 'video',
+                        sources: [{
+                            src: videoId,
+                            provider: 'dailymotion'
+                        }]
+                    };
+                }
+            } else {
+                // Direct video URL
+                player.source = {
+                    type: 'video',
+                    sources: [{
+                        src: url,
+                        type: 'video/mp4'
+                    }]
+                };
+            }
+        }
+
+        // Play specific episode
+        function playEpisode(episodeNumber, baseUrl) {
+            // Update active episode button
+            const buttons = document.querySelectorAll('.episode-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            buttons[episodeNumber - 1].classList.add('active');
+
+            // Modify URL for specific episode if needed
+            let episodeUrl = baseUrl;
+            if (baseUrl.includes('{{episode}}')) {
+                episodeUrl = baseUrl.replace('{{episode}}', episodeNumber);
+            } else if (baseUrl.includes('{{EPISODE}}')) {
+                episodeUrl = baseUrl.replace('{{EPISODE}}', episodeNumber);
+            }
+
+            setupVideo(episodeUrl);
+        }
+
+        // Load content when page loads
+        document.addEventListener('DOMContentLoaded', fetchContentDetails);
+    </script>
+</body>
+</html>

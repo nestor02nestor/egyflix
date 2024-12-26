@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المصارعة - EgyFlix</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="index.html">EgyFlix</a>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">الرئيسية</a>
+            <a href="movies.html">أفلام</a>
+            <a href="series.html">مسلسلات</a>
+            <a href="anime.html">أنمي</a>
+            <a href="wrestling.html" class="active">مصارعة</a>
+        </div>
+        <div class="nav-search">
+            <input type="text" id="searchInput" placeholder="ابحث عن عرض...">
+            <button id="searchBtn"><i class="fas fa-search"></i></button>
+        </div>
+        <button id="darkModeToggle" class="theme-toggle">
+            <i class="fas fa-moon"></i>
+        </button>
+    </nav>
+
+    <main>
+        <section class="filters">
+            <div class="filter-group">
+                <label>العرض:</label>
+                <select id="showFilter">
+                    <option value="">الكل</option>
+                    <option value="raw">RAW</option>
+                    <option value="smackdown">SmackDown</option>
+                    <option value="nxt">NXT</option>
+                    <option value="ppv">عروض خاصة</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>السنة:</label>
+                <select id="yearFilter">
+                    <option value="">الكل</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>الجودة:</label>
+                <select id="qualityFilter">
+                    <option value="">الكل</option>
+                    <option value="1080p">HD 1080p</option>
+                    <option value="720p">HD 720p</option>
+                    <option value="480p">SD 480p</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2 class="section-title">أحدث عروض المصارعة</h2>
+            <div class="wrestling-grid" id="wrestlingGrid"></div>
+        </section>
+    </main>
+
+    <div id="movieViewer" class="movie-viewer">
+        <div class="viewer-content">
+            <div class="viewer-header">
+                <h2 class="movie-title"></h2>
+                <div class="viewer-controls">
+                    <button class="control-btn" id="toggleLights"><i class="fas fa-lightbulb"></i></button>
+                    <button class="control-btn" id="toggleFullscreen"><i class="fas fa-expand"></i></button>
+                    <button class="close-viewer">&times;</button>
+                </div>
+            </div>
+            <div class="video-container">
+                <div class="plyr__video-embed" id="player">
+                    <iframe
+                        src=""
+                        allowfullscreen
+                        allowtransparency
+                        allow="autoplay"
+                    ></iframe>
+                </div>
+            </div>
+            <div class="viewer-info">
+                <div class="movie-details-expanded">
+                    <div class="info-row">
+                        <span class="show-type"><i class="fas fa-tv"></i> <span class="show-value"></span></span>
+                        <span class="quality"></span>
+                        <span class="duration"><i class="fas fa-clock"></i> <span class="duration-value"></span></span>
+                        <span class="date"><i class="fas fa-calendar"></i> <span class="date-value"></span></span>
+                    </div>
+                    <p class="description"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 EgyFlix - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+    <script src="wrestling.js"></script>
+</body>
+</html>
