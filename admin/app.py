@@ -59,17 +59,15 @@ class Series(db.Model):
 
 # Create all tables
 with app.app_context():
-    # Drop all tables
-    db.drop_all()
-    # Create all tables
     db.create_all()
-    # Create admin user
-    if not User.query.filter_by(username='admin').first():
-        admin = User(
+    # Create admin user if it doesn't exist
+    admin_user = User.query.filter_by(username='admin').first()
+    if not admin_user:
+        admin_user = User(
             username='admin',
-            password=generate_password_hash('admin123')
+            password=generate_password_hash('admin123', method='pbkdf2:sha256')
         )
-        db.session.add(admin)
+        db.session.add(admin_user)
         db.session.commit()
 
 # Login manager
